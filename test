@@ -1,0 +1,29 @@
+Here’s a regular expression (regex) that captures GitHub's naming restrictions for repository names:
+
+^(?!\.)[a-zA-Z0-9._-]{1,100}(?<!\.\.)$
+
+Explanation of the Regex:
+
+1. ^(?!\.) - Ensures the name does not start with a period.
+
+
+2. [a-zA-Z0-9._-]{1,100} - Allows 1 to 100 characters including:
+
+Uppercase and lowercase letters (a-z, A-Z)
+
+Digits (0-9)
+
+Hyphens (-)
+
+Underscores (_)
+
+Periods (.)
+
+
+
+3. (?<!\.\.)$ - Ensures the name does not contain consecutive periods or end with a period.
+
+
+
+This regex should be suitable for validating GitHub repository names according to the restrictions we discussed.
+
