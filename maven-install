@@ -1,0 +1,68 @@
+To install Maven on a Mac using the tar.gz file, follow these steps:
+
+1. Download the Maven tar.gz File:
+
+Visit the Maven download page.
+
+Download the latest tar.gz file.
+
+
+
+2. Extract the tar.gz File:
+
+Open Terminal.
+
+Navigate to the folder where you downloaded the tar.gz file.
+
+Run the following command to extract it:
+
+tar -xzf apache-maven-*.tar.gz
+
+This will create a folder like apache-maven-x.x.x (replace x.x.x with the actual version).
+
+
+
+3. Move the Extracted Directory (Optional):
+
+Move the extracted folder to a location where you want to keep Maven, such as /opt.
+
+sudo mv apache-maven-* /opt/maven
+
+
+
+4. Set up Environment Variables:
+
+Open or create the ~/.zshrc file if you're using Zsh (the default shell on macOS), or ~/.bash_profile if using Bash.
+
+Add the following lines to set Maven environment variables:
+
+export M2_HOME=/opt/maven
+export PATH=$M2_HOME/bin:$PATH
+
+Save and close the file.
+
+
+
+5. Apply the Changes:
+
+Source the profile to apply the changes:
+
+source ~/.zshrc  # For Zsh
+
+or
+
+source ~/.bash_profile  # For Bash
+
+
+
+6. Verify the Installation:
+
+Run the following command to confirm Maven is installed:
+
+mvn -v
+
+
+
+
+You should now see Maven's version information, which confirms it is successfully installed.
+
