@@ -2,28 +2,33 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: conditional-field-example
+  title: Conditional Field Example
+  description: A template demonstrating conditional fields
 spec:
   type: service
   parameters:
-    - title: Select Options
+    - title: Example Form
       required:
         - option
       properties:
         option:
-          title: Choose an Option
           type: string
+          title: Choose an Option
           enum:
             - Option A
             - Option B
 
         additionalField:
-          title: Additional Field (Visible only for Option A)
           type: string
-          ui:widget: text
+          title: Additional Field (Visible only for Option A)
 
-      dependencies:
+      ui: # UI Schema for conditional visibility
         additionalField:
-          oneOf:
-            - properties:
-                option:
-                  enum: ["Option A"]
+          "ui:widget": hidden # Default state is hidden
+        option:
+          "ui:change": |
+            if (formData.option === 'Option A') {
+              uiSchema.additionalField["ui:widget"] = "text";
+            } else {
+              uiSchema.additionalField["ui:widget"] = "hidden";
+            }
