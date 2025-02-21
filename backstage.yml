@@ -1,0 +1,29 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: conditional-field-example
+spec:
+  type: service
+  parameters:
+    - title: Select Options
+      required:
+        - option
+      properties:
+        option:
+          title: Choose an Option
+          type: string
+          enum:
+            - Option A
+            - Option B
+
+        additionalField:
+          title: Additional Field (Visible only for Option A)
+          type: string
+          ui:widget: text
+
+      dependencies:
+        additionalField:
+          oneOf:
+            - properties:
+                option:
+                  enum: ["Option A"]
