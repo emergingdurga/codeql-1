@@ -1,0 +1,24 @@
+pipeline:
+  name: Example Pipeline
+  identifier: Example_Pipeline
+  stages:
+    - stage:
+        name: Deploy
+        identifier: Deploy
+        type: Deployment
+        spec:
+          serviceConfig:
+            ...
+          infrastructure:
+            environmentRef: <+input>  # Environment is a runtime input
+            infrastructureDefinitions:
+              - identifier: <+input>   # Infrastructure input (mark as required)
+                inputs:
+                  variables:
+                    - name: requiredInfraInput
+                      type: String
+                      description: "Infrastructure definition is required"
+                      value: <+input>  # Runtime input for infrastructure
+                      allowedValues:   # Validation to enforce non-empty input
+                        - regex: ^.+$
+                          errorMessage: "Infrastructure definition is mandatory."
