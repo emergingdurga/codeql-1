@@ -1,0 +1,1 @@
+for ns in namespace1 namespace2 namespace3; do kubectl get pods -n $ns; done
