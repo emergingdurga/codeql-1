@@ -1,0 +1,107 @@
+Awesome — thanks for sharing the structure of your istioenvmap.json. Based on that, here's how you can use this JSON file in your Helm chart (including inside Harness) to dynamically pull host and gateway values using a helper function.
+
+
+---
+
+1. Sample istioenvmap.json (you already have this):
+
+{
+  "rtl-pre": {
+    "caas-nonibs": {
+      "gclb": {
+        "host": "web202-ew2.c2.test.oncp.cloud",
+        "gateway": "caas-web-app-pre-ingressgateway"
+      },
+      "ilb": {
+        "web": {
+          "host": "web202-pre-ew2.c2.test.lbgcp.cloud",
+          "gateway": "caas-web-lbgcp-pre-ingressgateway"
+        },
+        "api": {
+          "host": "api202-pre-ew2.c2.test.lbgcp.cloud",
+          "gateway": "caas-api-lbgcp-pre-ingressgateway"
+        }
+      }
+    }
+  }
+}
+
+
+---
+
+2. values.yaml example
+
+env: rtl-pre
+type: caas-nonibs
+lbtype: ilb
+component: api
+
+
+---
+
+3. Helm helper function in _helpers.tpl
+
+{{/*
+Helper to get the host
+*/}}
+{{- define "mychart.getHost" -}}
+{{- $env := .Values.env -}}
+{{- $type := .Values.type -}}
+{{- $lbtype := .Values.lbtype -}}
+{{- $component := .Values.component -}}
+{{- index .Values.istioenvmap $env $type $lbtype $component "host" -}}
+{{- end -}}
+
+{{/*
+Helper to get the gateway
+*/}}
+{{- define "mychart.getGateway" -}}
+{{- $env := .Values.env -}}
+{{- $type := .Values.type -}}
+{{- $lbtype := .Values.lbtype -}}
+{{- $component := .Values.component -}}
+{{- index .Values.istioenvmap $env $type $lbtype $component "gateway" -}}
+{{- end -}}
+
+
+---
+
+4. Use in virtualservice.yaml
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: my-virtualservice
+spec:
+  hosts:
+    - {{ include "mychart.getHost" . }}
+  gateways:
+    - {{ include "mychart.getGateway" . }}
+  http:
+    - route:
+        - destination:
+            host: my-service
+            port:
+              number: 80
+
+
+---
+
+5. In Harness
+
+When configuring the service in Harness:
+
+Add both values.yaml and istioenvmap.json in the Helm chart directory or reference them in the Values YAML Files section of the Service.
+
+Harness will merge both files into .Values.
+
+
+> You don’t need to convert the JSON — Helm handles JSON as long as it's passed as part of the values.
+
+
+
+
+---
+
+Let me know if you want this packaged up as a .tgz Helm chart or a Harness-ready repo template!
+
