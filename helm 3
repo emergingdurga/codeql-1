@@ -1,0 +1,14 @@
+{{- define "sample-app.getGateway" -}}
+{{- $env := .Values.env -}}
+{{- $type := .Values.type -}}
+{{- $lbtype := .Values.lbtype -}}
+{{- $component := .Values.component -}}
+{{- $map := .Values.istioenvmap -}}
+
+{{- $gateway := index $map $env $type $lbtype $component "gateway" | default "" -}}
+{{- if $gateway }}
+ingress-gateway/{{ $gateway }}
+{{- else }}
+ingress-gateway/missing-gateway
+{{- end -}}
+{{- end -}}
