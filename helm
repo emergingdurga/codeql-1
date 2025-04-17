@@ -1,0 +1,21 @@
+{{/*
+Helper to get the host
+*/}}
+{{- define "mychart.getHost" -}}
+{{- $env := .Values.env -}}
+{{- $type := .Values.type -}}
+{{- $lbtype := .Values.lbtype -}}
+{{- $component := .Values.component -}}
+{{- index .Values.istioenvmap $env $type $lbtype $component "host" -}}
+{{- end -}}
+
+{{/*
+Helper to get the gateway
+*/}}
+{{- define "mychart.getGateway" -}}
+{{- $env := .Values.env -}}
+{{- $type := .Values.type -}}
+{{- $lbtype := .Values.lbtype -}}
+{{- $component := .Values.component -}}
+{{- index .Values.istioenvmap $env $type $lbtype $component "gateway" -}}
+{{- end -}}
