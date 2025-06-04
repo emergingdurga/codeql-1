@@ -1,0 +1,10 @@
+- step:
+    name: Reset Workspace
+    identifier: reset_workspace
+    type: Run
+    spec:
+      shell: Bash
+      command: |
+        echo "Cleaning workspace..."
+        rm -rf * .[^.] .??*
+        echo "Workspace reset done."
