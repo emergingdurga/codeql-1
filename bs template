@@ -1,0 +1,122 @@
+Here’s an absolutely simple example to test repeating a Harness pipeline stage using Backstage Scaffolder + Handlebars — minimal and ready to try out.
+
+
+---
+
+✅ Goal: Repeat one stage per service in a single Harness pipeline YAML.
+
+
+---
+
+1. template.yaml
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: simple-harness-pipeline
+  title: Simple Harness Pipeline
+spec:
+  parameters:
+    - title: Services
+      required: [services]
+      properties:
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+  steps:
+    - id: fetch
+      name: Generate Pipeline
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          services: '{{ parameters.services }}'
+
+
+---
+
+2. skeleton/pipeline.yaml.hbs
+
+pipeline:
+  name: Simple Pipeline
+  identifier: Simple_Pipeline
+  projectIdentifier: MyProject
+  orgIdentifier: default
+  stages:
+    {{#each services}}
+    - stage:
+        name: {{name}} Stage
+        identifier: {{name}}_Stage
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: Echo {{name}}
+                  identifier: echo_{{name}}
+                  spec:
+                    shell: Bash
+                    command: echo "Running stage for {{name}}"
+    {{/each}}
+
+
+---
+
+3. User input during scaffolding
+
+services:
+  - name: auth
+  - name: payment
+
+
+---
+
+✅ Final Output (pipeline.yaml)
+
+pipeline:
+  name: Simple Pipeline
+  identifier: Simple_Pipeline
+  projectIdentifier: MyProject
+  orgIdentifier: default
+  stages:
+    - stage:
+        name: auth Stage
+        identifier: auth_Stage
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: Echo auth
+                  identifier: echo_auth
+                  spec:
+                    shell: Bash
+                    command: echo "Running stage for auth"
+    - stage:
+        name: payment Stage
+        identifier: payment_Stage
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: Echo payment
+                  identifier: echo_payment
+                  spec:
+                    shell: Bash
+                    command: echo "Running stage for payment"
+
+
+---
+
+This is the bare minimum version to prove that repetition works. Just drop this in a new Backstage template and test.
+
+Would you like this to also generate a file per service, or integrate with a real Harness project next?
+
