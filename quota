@@ -1,0 +1,123 @@
+Great! Here's how you can fetch real data from the Kubernetes ResourceQuota API using the official Java Kubernetes client in your Spring Boot app — no hardcoding.
+
+
+---
+
+✅ Plan
+
+1. Use Kubernetes Java client to get ResourceQuota objects.
+
+
+2. Extract values for:
+
+requests.cpu, limits.cpu
+
+requests.memory, limits.memory
+
+from both status.hard and status.used
+
+
+
+3. Convert values like 500m, 5Gi to BigDecimal
+
+
+4. Map into your ResourceUsage POJO
+
+
+5. Pass to Thymeleaf → Render with Chart.js
+
+
+
+
+---
+
+📦 Step-by-Step Setup
+
+1. ✅ Add Kubernetes Client to pom.xml
+
+<dependency>
+    <groupId>io.kubernetes</groupId>
+    <artifactId>client-java</artifactId>
+    <version>18.0.1</version> <!-- or latest compatible -->
+</dependency>
+
+
+---
+
+2. ✅ Create Utility to Convert Quantity to double
+
+public class K8sQuantityUtil {
+    public static double toDecimal(String quantity) {
+        if (quantity.endsWith("m")) {
+            return Double.parseDouble(quantity.replace("m", "")) / 1000.0;
+        } else if (quantity.toLowerCase().endsWith("gi")) {
+            return Double.parseDouble(quantity.replaceAll("Gi", "")) * 1024;
+        } else if (quantity.toLowerCase().endsWith("mi")) {
+            return Double.parseDouble(quantity.replaceAll("Mi", ""));
+        } else {
+            return Double.parseDouble(quantity);
+        }
+    }
+}
+
+
+---
+
+3. ✅ Update Controller to Use Real K8s Data
+
+@GetMapping("/")
+public String viewQuota(Model model) throws Exception {
+    ApiClient client = Config.defaultClient(); // assumes you are running inside cluster or have kubeconfig set
+    Configuration.setDefaultApiClient(client);
+
+    CoreV1Api api = new CoreV1Api();
+    V1ResourceQuota quota = api.readNamespacedResourceQuota("your-quota-name", "your-namespace", null);
+
+    Map<String, Quantity> hardMap = quota.getStatus().getHard();
+    Map<String, Quantity> usedMap = quota.getStatus().getUsed();
+
+    List<ResourceUsage> usages = new ArrayList<>();
+
+    usages.add(new ResourceUsage("CPU Requests",
+            K8sQuantityUtil.toDecimal(hardMap.get("requests.cpu").getAmount()),
+            K8sQuantityUtil.toDecimal(usedMap.get("requests.cpu").getAmount())));
+
+    usages.add(new ResourceUsage("CPU Limits",
+            K8sQuantityUtil.toDecimal(hardMap.get("limits.cpu").getAmount()),
+            K8sQuantityUtil.toDecimal(usedMap.get("limits.cpu").getAmount())));
+
+    usages.add(new ResourceUsage("Memory Requests",
+            K8sQuantityUtil.toDecimal(hardMap.get("requests.memory").getAmount()),
+            K8sQuantityUtil.toDecimal(usedMap.get("requests.memory").getAmount())));
+
+    usages.add(new ResourceUsage("Memory Limits",
+            K8sQuantityUtil.toDecimal(hardMap.get("limits.memory").getAmount()),
+            K8sQuantityUtil.toDecimal(usedMap.get("limits.memory").getAmount())));
+
+    model.addAttribute("usages", usages);
+    return "quota";
+}
+
+> 🔁 Replace "your-quota-name" and "your-namespace" with real values — or loop over all quotas if needed.
+
+
+
+
+---
+
+4. ✅ Keep Thymeleaf + Chart.js as Is
+
+The existing quota.html template works unchanged because you're feeding real values into the same ResourceUsage structure.
+
+
+---
+
+✅ Result
+
+When you hit /, it fetches real quota data from your Kubernetes cluster and shows a live bar chart.
+
+
+---
+
+Do you want me to zip this working setup with resourceQuota API wired in?
+
