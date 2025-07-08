@@ -1,0 +1,186 @@
+Perfect! Here's a full working example using Spring Boot + Thymeleaf + Bootstrap with color-thresholded progress bars (Option 2) to show Kubernetes resource quota usage.
+
+
+---
+
+✅ What This Example Does
+
+Displays CPU and Memory usage
+
+Uses Bootstrap progress bars
+
+Color changes based on usage:
+
+Green (<50%)
+
+Yellow (50-80%)
+
+Red (>80%)
+
+
+
+
+---
+
+📁 Project Structure
+
+resource-quota-chart/
+├── src/
+│   └── main/
+│       ├── java/com/example/demo/
+│       │   ├── DemoApplication.java
+│       │   └── controller/QuotaController.java
+│       └── resources/
+│           ├── templates/quota.html
+│           └── application.yml
+├── pom.xml
+
+
+---
+
+🧩 1. pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" ...>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>resource-quota-chart</artifactId>
+    <version>1.0.0</version>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+
+
+---
+
+🧠 2. QuotaController.java
+
+package com.example.demo.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class QuotaController {
+
+    @GetMapping("/quota")
+    public String showQuota(Model model) {
+        int cpuUsed = 3;
+        int cpuHard = 4;
+        int memoryUsed = 40;
+        int memoryHard = 50;
+
+        int cpuPercent = (int) ((cpuUsed / (double) cpuHard) * 100);
+        int memPercent = (int) ((memoryUsed / (double) memoryHard) * 100);
+
+        model.addAttribute("cpuUsed", cpuUsed);
+        model.addAttribute("cpuHard", cpuHard);
+        model.addAttribute("cpuPercent", cpuPercent);
+
+        model.addAttribute("memoryUsed", memoryUsed);
+        model.addAttribute("memoryHard", memoryHard);
+        model.addAttribute("memoryPercent", memPercent);
+
+        return "quota";
+    }
+}
+
+
+---
+
+🌐 3. quota.html (Thymeleaf + Bootstrap)
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quota Usage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-5">
+    <h2>Kubernetes Resource Quota</h2>
+
+    <div class="my-4">
+        <label>CPU: [[${cpuUsed}]] / [[${cpuHard}]]</label>
+        <div class="progress">
+            <div class="progress-bar"
+                 th:classappend="${cpuPercent > 80} ? 'bg-danger' : (${cpuPercent > 50} ? 'bg-warning' : 'bg-success')"
+                 th:style="'width:' + ${cpuPercent} + '%'"
+                 th:text="${cpuPercent} + '%'">
+            </div>
+        </div>
+    </div>
+
+    <div class="my-4">
+        <label>Memory: [[${memoryUsed}]]Gi / [[${memoryHard}]]Gi</label>
+        <div class="progress">
+            <div class="progress-bar"
+                 th:classappend="${memoryPercent > 80} ? 'bg-danger' : (${memoryPercent > 50} ? 'bg-warning' : 'bg-success')"
+                 th:style="'width:' + ${memoryPercent} + '%'"
+                 th:text="${memoryPercent} + '%'">
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+---
+
+⚙️ 4. application.yml
+
+server:
+  port: 8080
+spring:
+  thymeleaf:
+    cache: false
+
+
+---
+
+▶️ How to Run
+
+1. Save this project to a folder (resource-quota-chart)
+
+
+2. Run it using:
+
+
+
+./mvnw spring-boot:run
+
+3. Open browser → http://localhost:8080/quota
+
+
+
+
+---
+
+✅ You Will See:
+
+CPU bar: filled with dynamic color based on usage
+
+Memory bar: same
+
+Labels showing numeric values
+
+
+
+---
+
+Would you like me to zip this up and send it to you directly?
+
