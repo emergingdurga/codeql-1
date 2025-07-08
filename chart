@@ -1,0 +1,108 @@
+Great choice! Here's a full working example using Spring Boot + Thymeleaf + Chart.js where the circular chart (doughnut) dynamically changes color based on percentage used:
+
+
+---
+
+✅ Goal:
+
+Show resource usage (CPU/memory/anything) as a donut chart.
+
+Color dynamically changes:
+
+0–30% = green
+
+30–60% = amber
+
+60–100% = red gradient
+
+
+
+
+---
+
+✅ 1. Spring Boot Controller (Java)
+
+@Controller
+public class UsageController {
+
+    @GetMapping("/usage")
+    public String showUsage(Model model) {
+        int usedPercentage = 78; // Dynamic value from ResourceQuota API
+        model.addAttribute("usedPercentage", usedPercentage);
+        return "usage";
+    }
+}
+
+
+---
+
+✅ 2. Thymeleaf Template (usage.html)
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resource Usage</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container text-center mt-5">
+    <h2>Resource Usage</h2>
+    <canvas id="usageChart" width="250" height="250"></canvas>
+</div>
+
+<script th:inline="javascript">
+    let used = [[${usedPercentage}]];
+    let remaining = 100 - used;
+
+    // Function to calculate dynamic color
+    function getColor(value) {
+        if (value <= 30) return '#28a745';        // green
+        else if (value <= 60) return '#ffc107';   // amber
+        else if (value <= 85) return '#fd7e14';   // orange
+        else return '#dc3545';                    // red
+    }
+
+    const ctx = document.getElementById('usageChart').getContext('2d');
+    const usageChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [used, remaining],
+                backgroundColor: [getColor(used), '#e9ecef'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
+
+
+---
+
+✅ Result:
+
+If usedPercentage = 78 → the donut chart shows 78% used in orange-red and 22% in gray.
+
+Adjusts color dynamically using JS inlined with Thymeleaf.
+
+
+
+---
+
+Let me know if you want to show multiple charts (e.g., CPU, memory) or also display numeric labels inside the donut!
+
