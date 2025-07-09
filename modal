@@ -1,0 +1,77 @@
+To dynamically change the modal body content with the API response, follow these steps. This example assumes you’re using Bootstrap Modal, JavaScript, and possibly Thymeleaf in a Spring Boot app.
+
+
+---
+
+✅ Step-by-step Example
+
+✅ 1. HTML - Bootstrap Modal Template
+
+<!-- Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resultModalLabel">API Result</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        Loading...
+      </div>
+    </div>
+  </div>
+</div>
+
+
+---
+
+✅ 2. JavaScript to Fetch API and Inject into Modal
+
+<script>
+  function fetchAndShowResult(endpoint) {
+    const param = document.getElementById("paramInput").value;
+
+    fetch(`/${endpoint}?param=${encodeURIComponent(param)}`)
+      .then(response => response.text()) // or .json() if your response is JSON
+      .then(data => {
+        document.getElementById("modalBody").innerText = data;
+        const myModal = new bootstrap.Modal(document.getElementById('resultModal'));
+        myModal.show();
+      })
+      .catch(error => {
+        document.getElementById("modalBody").innerText = "Error: " + error;
+        const myModal = new bootstrap.Modal(document.getElementById('resultModal'));
+        myModal.show();
+      });
+  }
+</script>
+
+
+---
+
+✅ 3. Buttons to Trigger API Call
+
+<input type="text" id="paramInput" placeholder="Enter parameter" />
+
+<button class="btn btn-primary" onclick="fetchAndShowResult('pods')">Get Pods</button>
+<button class="btn btn-success" onclick="fetchAndShowResult('svc')">Get Services</button>
+
+
+---
+
+🧪 Result:
+
+User enters a value
+
+Clicks a button
+
+Calls your Spring Boot endpoint (e.g., /pods?param=value)
+
+Displays the API response in the modal body
+
+
+
+---
+
+Let me know if your API returns HTML, JSON, or needs authentication, and I can tailor the solution.
+
