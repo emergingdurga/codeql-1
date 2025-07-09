@@ -1,0 +1,127 @@
+Perfect — for multiple circular charts (like CPU, memory, storage, etc.) in Thymeleaf + Chart.js, you can loop through the data in Thymeleaf and dynamically create multiple <canvas> elements with unique IDs. Then, initialize separate Chart.js charts for each.
+
+
+---
+
+✅ Example Use Case:
+
+Let’s say we have:
+
+[
+  { "name": "CPU",     "used": 78 },
+  { "name": "Memory",  "used": 45 },
+  { "name": "Storage", "used": 92 }
+]
+
+
+---
+
+✅ 1. Controller (Java):
+
+@GetMapping("/usage")
+public String showUsage(Model model) {
+    List<Map<String, Object>> usages = new ArrayList<>();
+
+    usages.add(Map.of("name", "CPU", "used", 78));
+    usages.add(Map.of("name", "Memory", "used", 45));
+    usages.add(Map.of("name", "Storage", "used", 92));
+
+    model.addAttribute("usages", usages);
+    return "usage";
+}
+
+
+---
+
+✅ 2. Thymeleaf Template (usage.html):
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resource Usage</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-card {
+            width: 250px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container text-center">
+    <h2 class="mb-4">Resource Usage</h2>
+
+    <div class="d-flex flex-wrap justify-content-center">
+        <div th:each="item, iterStat : ${usages}" class="chart-card">
+            <h5 th:text="${item.name}"></h5>
+            <canvas th:attr="id='chart-' + ${iterStat.index}"></canvas>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*[[${usages}]]*/
+    let usages = [[${usages}]];
+
+    function getColor(value) {
+        if (value <= 30) return '#28a745';        // green
+        else if (value <= 60) return '#ffc107';   // amber
+        else if (value <= 85) return '#fd7e14';   // orange
+        else return '#dc3545';                    // red
+    }
+
+    usages.forEach((item, index) => {
+        const ctx = document.getElementById(`chart-${index}`).getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Used', 'Remaining'],
+                datasets: [{
+                    data: [item.used, 100 - item.used],
+                    backgroundColor: [getColor(item.used), '#e9ecef'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
+
+
+---
+
+✅ Output:
+
+Dynamically generated one chart per resource (CPU, Memory, etc.)
+
+Colors adjust per usage value.
+
+Fully responsive with Bootstrap flexbox.
+
+
+
+---
+
+Let me know if you want:
+
+to embed numeric values inside the ring, or
+
+to add animation or thresholds, or
+
+to pull live values from Kubernetes ResourceQuota API.
+
+
