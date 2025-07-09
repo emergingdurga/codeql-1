@@ -1,0 +1,85 @@
+✅ No — you do not need to change anything in the script if you use th:if to skip items in the Thymeleaf loop.
+
+Why?
+
+Because:
+
+The JavaScript only loops over .chart-card elements that exist in the rendered HTML.
+
+When you use th:if to skip item.name == "pod", that div is not rendered, so it's automatically excluded from the script.
+
+
+
+---
+
+✅ Recap of your setup:
+
+Your loop:
+
+<div th:each="item, iterStat : ${usages}" 
+     th:if="${item.name.toLowerCase() != 'pod'}"
+     class="chart-card"
+     th:attr="data-used=${item.used}, data-total=${item.total}, data-name=${item.name}, data-percent=${item.percent}">
+  ...
+</div>
+
+Your script:
+
+document.querySelectorAll(".chart-card").forEach((card, index) => {
+    const used = parseInt(card.dataset.used);
+    const total = parseInt(card.dataset.total);
+    const percent = parseInt(card.dataset.percent);
+    
+    const ctx = document.getElementById(`chart-${index}`).getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [percent, 100 - percent],
+                backgroundColor: [getColor(percent), '#e9ecef'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.label === 'Used') {
+                                return `Used: ${used}`;
+                            } else {
+                                return `Remaining: ${total - used}`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+
+
+---
+
+✅ It Just Works™
+
+Unless you're doing something like calculating iterStat.index for setting chart IDs — then skipping one item might cause duplicate IDs or mismatched indexes.
+
+
+---
+
+🔧 Optional Fix (if using iterStat.index in id):
+
+Use UUID or the actual item.name for canvas ID to avoid index mismatch:
+
+<canvas th:attr="id='chart-' + ${item.name.toLowerCase()}"></canvas>
+
+And in JS:
+
+const ctx = document.getElementById(`chart-${card.dataset.name.toLowerCase()}`).getContext('2d');
+
+Let me know if you're running into mismatched canvas IDs or want help making this more robust.
+
