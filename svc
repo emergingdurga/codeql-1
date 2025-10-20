@@ -1,0 +1,16 @@
+service:
+  serviceDefinition:
+    type: Kubernetes
+    spec:
+      manifests:
+        - manifest:
+            identifier: manifest
+            type: HelmChart
+            spec:
+              store:
+                type: Git
+                spec:
+                  connectorRef: myGitConnector
+                  repoName: my-repo
+                  paths:
+                    - values_${regexExtract(infra.name, "^([a-zA-Z]+)_.*", 1)}.yaml
