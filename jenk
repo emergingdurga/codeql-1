@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'USERNAME', defaultValue: 'guest', description: 'Enter your name')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'], description: 'Select environment')
+    }
+
+    stages {
+        stage('Print Inputs') {
+            steps {
+                script {
+                    echo "User Name: ${params.USERNAME}"
+                    echo "Selected Environment: ${params.ENVIRONMENT}"
+                }
+            }
+        }
+
+        stage('Use Input') {
+            steps {
+                script {
+                    if (params.ENVIRONMENT == 'prod') {
+                        echo "⚠️ Deploying to PRODUCTION by ${params.USERNAME}"
+                    } else {
+                        echo "Deploying to ${params.ENVIRONMENT} by ${params.USERNAME}"
+                    }
+                }
+            }
+        }
+    }
+}
