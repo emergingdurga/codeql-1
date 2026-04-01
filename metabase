@@ -6,7 +6,6 @@ FROM "sp_comms_outbound_email"."outbound_email_request"
 WHERE
   "status" = 'F'
   AND "template_type" = 'ENERGY_EXPORT_APPLICATION'
-  AND "processed_timestamp" >= DATE_TRUNC('hour', (NOW() + INTERVAL '-24 hour'))
-  AND "processed_timestamp" < DATE_TRUNC('hour', NOW())
+  AND "processed_timestamp" >= NOW() - interval '7 days'
 GROUP BY six_hour_bucket
 ORDER BY six_hour_bucket;
