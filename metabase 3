@@ -1,0 +1,7 @@
+SELECT COUNT(*) AS failure_count
+FROM "sp_comms_outbound_email"."outbound_email_request"
+WHERE
+  "status" = 'F'
+  AND "template_type" = 'ENERGY_EXPORT_APPLICATION'
+  AND "processed_timestamp" >= NOW() - interval '6 hours'
+HAVING COUNT(*) > 10;
