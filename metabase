@@ -1,0 +1,12 @@
+SELECT
+  date_trunc('hour', "processed_timestamp")
+    - (EXTRACT(hour FROM "processed_timestamp")::int % 6) * interval '1 hour' AS six_hour_bucket,
+  COUNT(*) AS count
+FROM "sp_comms_outbound_email"."outbound_email_request"
+WHERE
+  "status" = 'F'
+  AND "template_type" = 'ENERGY_EXPORT_APPLICATION'
+  AND "processed_timestamp" >= DATE_TRUNC('hour', (NOW() + INTERVAL '-24 hour'))
+  AND "processed_timestamp" < DATE_TRUNC('hour', NOW())
+GROUP BY six_hour_bucket
+ORDER BY six_hour_bucket;
