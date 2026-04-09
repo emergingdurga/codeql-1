@@ -1,0 +1,6 @@
+Jenkins.instance.getComputer("").executors.each {
+  if (it.isBusy()) {
+    println("Killing executor: " + it)
+    it.doStop()
+  }
+}
