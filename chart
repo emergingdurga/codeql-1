@@ -1,5 +1,5 @@
 Great choice! Here's a full working example using Spring Boot + Thymeleaf + Chart.js where the circular chart (doughnut) dynamically changes color based on percentage used:
-
+Test
 
 ---
 
