@@ -1,0 +1,21 @@
+groups:
+  - name: RedisExecutionLatency
+    rules:
+      - alert: RedisWarningLatency
+        expr: (rate(redis_command_duration_seconds_total{cmd=~"lrange|rpush"}[5m]) / rate(redis_command_calls_total{cmd=~"lrange|rpush"}[5m])) > 0.002
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis Warning: High execution time for {{ $labels.cmd }}"
+          description: "Execution time for {{ $labels.cmd }} on {{ $labels.instance }} has exceeded 2ms consistently for 15 minutes. Current latency is {{ $value | humanizeDuration }}."
+
+      - alert: RedisCriticalLatency
+        expr: (rate(redis_command_duration_seconds_total{cmd=~"lrange|rpush"}[5m]) / rate(redis_command_calls_total{cmd=~"lrange|rpush"}[5m])) > 0.005
+        for: 20m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis Critical: High execution time for {{ $labels.cmd }}"
+          description: "Execution time for {{ $labels.cmd }} on {{ $labels.instance }} has exceeded 5ms consistently for 20 minutes. Current latency is {{ $value | humanizeDuration }}."
+          runbook_url: "Linked documentation for action: Please reach out to CoE."
